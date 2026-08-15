@@ -5,6 +5,7 @@ import Gate from './components/Gate.jsx';
 import TopBar from './components/TopBar.jsx';
 import Mine from './components/Mine.jsx';
 import Board from './components/Board.jsx';
+import Dashboard from './components/Dashboard.jsx';
 import PersonPanel from './components/PersonPanel.jsx';
 import Toast from './components/Toast.jsx';
 
@@ -88,7 +89,7 @@ export default function App() {
   }, [ensureSession, loadRoster, loadMyTasks, showToast]);
 
   useEffect(() => {
-    if (view !== 'board' || !me) return;
+    if ((view !== 'board' && view !== 'dashboard') || !me) return;
     loadBoardTasks();
     loadRoster();
     const id = setInterval(() => {
@@ -163,10 +164,12 @@ export default function App() {
     const task = myTasks.find(t => t.id === id);
     if (!task) return;
     const nowDone = !task.hecha;
-    setMyTasks(prev => prev.map(t => t.id === id ? { ...t, hecha: nowDone, updated_at: new Date().toISOString() } : t));
-    const { error } = await supabase.from('tareas').update({ hecha: nowDone, updated_at: new Date().toISOString() }).eq('id', id);
+    const now = new Date().toISOString();
+    const completada_en = nowDone ? now : null;
+    setMyTasks(prev => prev.map(t => t.id === id ? { ...t, hecha: nowDone, completada_en, updated_at: now } : t));
+    const { error } = await supabase.from('tareas').update({ hecha: nowDone, completada_en, updated_at: now }).eq('id', id);
     if (error) {
-      setMyTasks(prev => prev.map(t => t.id === id ? { ...t, hecha: !nowDone } : t));
+      setMyTasks(prev => prev.map(t => t.id === id ? { ...t, hecha: !nowDone, completada_en: task.completada_en } : t));
       showToast('No se pudo guardar el cambio.');
       return;
     }
@@ -235,6 +238,8 @@ export default function App() {
             onOpenPerson={setOpenPersonId}
             onRefresh={() => { loadBoardTasks(); loadRoster(); showToast('Tablero actualizado.'); }}
           />
+        ) : view === 'dashboard' ? (
+          <Dashboard roster={roster} tasksByPerson={boardTasks} />
         ) : (
           <Mine
             me={me}

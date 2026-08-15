@@ -9,7 +9,10 @@ export default function TopBar({ me, view, setView, onExit }) {
         <nav className="tabs">
           <button className="tab" aria-selected={view === 'mine'} onClick={() => setView('mine')}>Mi espacio</button>
           {isLeader && (
-            <button className="tab" aria-selected={view === 'board'} onClick={() => setView('board')}>Tablero del equipo</button>
+            <>
+              <button className="tab" aria-selected={view === 'board'} onClick={() => setView('board')}>Tablero del equipo</button>
+              <button className="tab" aria-selected={view === 'dashboard'} onClick={() => setView('dashboard')}>Resumen</button>
+            </>
           )}
         </nav>
         <div className="top-right">
