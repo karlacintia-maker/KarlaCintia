@@ -1,12 +1,18 @@
 import { CheckIcon } from './Icons.jsx';
-import { stats, sortTasks, dueChipInfo, initials } from '../lib/helpers.js';
+import { stats, sortTasks, dueChipInfo, initials, formatDate } from '../lib/helpers.js';
 
 function Line({ t }) {
   const chip = !t.hecha ? dueChipInfo(t.fecha_limite) : null;
+  const meta = t.hecha
+    ? `Completada el ${formatDate(t.completada_en || t.updated_at)}`
+    : `Creada el ${formatDate(t.created_at)}`;
   return (
     <div className={`item ${t.hecha ? 'done' : ''}`}>
       <div className={`tick ${t.hecha ? 'on' : ''}`}><CheckIcon /></div>
-      <div className="item-text">{t.texto}</div>
+      <div className="item-body">
+        <div className="item-text">{t.texto}</div>
+        <span className="item-meta">{meta}</span>
+      </div>
       {chip && <span className={chip.cls}>{chip.label}</span>}
     </div>
   );
